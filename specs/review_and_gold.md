@@ -59,7 +59,8 @@ extract (Model A, validated) → review (Model B → Critique)
       `build_review_graph(extractor, reviewer, adjudicator, checkpointer)` injects models for stub tests.
       Verified: interrupt → resume via `Command` → accepted proposal merged + human flag applied, 0 rebuttals.
 - [ ] Enhancement: loop back to a *second* interrupt so the human sees rebuttals and can override.
-- [ ] Notebook that drives it (or run in Studio via `langgraph dev` → `review_pipeline`).
+- [x] Notebook that drives it: `workbench/review_graph.ipynb` (invoke → pause → resume via `Command`);
+      or run in Studio via `langgraph dev` → `review_pipeline`.
 
 ### Phase 4 — Gold as an eval set
 - [ ] Re-run the extractor vs gold; report fact precision/recall + citation accuracy.

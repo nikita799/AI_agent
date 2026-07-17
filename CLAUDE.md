@@ -23,7 +23,8 @@ ai_assistant/
 │   └── config.py             # repo-root-relative paths + .env loading
 ├── workbench/                # ← MAIN task notebooks: run extraction on real transcripts & examine quality
 │   ├── symptoms.ipynb        # run → evidence matrix + transcript-coverage highlight → critique
-│   └── review.ipynb          # dual-model: A extracts, B reviews → 🟩/🟧 diff (→ gold dataset, WIP)
+│   ├── review.ipynb          # dual-model: A extracts, B reviews → 🟩/🟧 diff → adjudicate → save gold
+│   └── review_graph.ipynb    # drives graphs/review_pipeline.py: interrupt/resume HITL flow
 ├── lessons/                  # one LangGraph concept per notebook (see lessons/README.md)
 │   ├── 00_run_and_inspect.ipynb  # ✅ run a graph & examine its intermediaries
 │   ├── 01_single_node.ipynb  # ✅ baseline: START → extract → END
