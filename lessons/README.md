@@ -11,6 +11,7 @@ checkable. You write the code — the spec is the contract, not an auto-implemen
 
 | # | Notebook | LangGraph mechanism | Extraction exercise |
 |---|----------|---------------------|---------------------|
+| 00 | `00_run_and_inspect.ipynb` ✅ | run & inspect from a notebook (`invoke`/`stream`) | watch the validation loop's state change step-by-step |
 | 01 | `01_single_node.ipynb` ✅ | baseline: `StateGraph`, nodes, edges | `START → extract → END` |
 | 02 | `02_state_and_reducers.ipynb` | `Annotated[list, add]`, `add_messages` | accumulate problems across passes instead of overwriting |
 | 03 | `03_conditional_routing.ipynb` | `add_conditional_edges` | 0 problems found → route to a fallback/clarify node |

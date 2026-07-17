@@ -5,7 +5,9 @@
 > **Graph module:** reuse `graphs/validation_loop.py`
 
 ## Goal (learning)
-See a graph's progress as it runs instead of only its final result.
+Go deep on the streaming API — token-level `"messages"` and `"custom"` events, and async
+`astream` — beyond the basic run-and-examine harness introduced in lesson 00
+(`specs/00_run_and_inspect.md`), which already covers `"updates"`/`"values"`/`"debug"`.
 
 ## Mechanism under test
 `graph.stream(input, stream_mode=...)` for `"updates"`, `"values"`, `"messages"`,
