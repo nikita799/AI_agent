@@ -15,14 +15,12 @@ TRANSCRIPTS_CSV = DATA_DIR / "transcripts.csv"
 
 
 def load_env() -> Path | None:
-    """Load API keys into the environment.
+    """Load API keys from the repo-root ``.env`` into the environment.
 
-    Looks for a ``.env`` at the repo root first, then falls back to the one that
-    still lives in the ``assistant/`` venv directory. Returns the file that was
-    loaded, or ``None`` if neither exists.
+    Returns the file that was loaded, or ``None`` if it doesn't exist.
     """
-    for candidate in (REPO_ROOT / ".env", REPO_ROOT / "assistant" / ".env"):
-        if candidate.exists():
-            load_dotenv(candidate, override=True)
-            return candidate
+    env_file = REPO_ROOT / ".env"
+    if env_file.exists():
+        load_dotenv(env_file, override=True)
+        return env_file
     return None

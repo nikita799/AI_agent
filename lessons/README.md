@@ -29,10 +29,10 @@ jump to the one whose mechanism you want next.
 
 ```bash
 # one-time: install the project + deps into the venv (editable)
-assistant/bin/python -m pip install -e .
+.venv/bin/python -m pip install -e .
 
 # then open any lesson with that interpreter as the kernel, launched from the repo root:
-assistant/bin/python -m jupyter lab
+.venv/bin/python -m jupyter lab
 ```
 
 Because `clinical` is installed editably, `import clinical` works in any kernel

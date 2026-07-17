@@ -26,27 +26,31 @@ ai_assistant/
 ├── langgraph.json            # wires graphs/ into `langgraph dev` (Studio)
 ├── pyproject.toml            # installable project + deps (replaces per-notebook %pip install)
 ├── requirements.txt          # pinned lockfile (pip freeze)
-└── assistant/                # ⚠️ Python 3.14 venv ONLY (source no longer lives here)
-    ├── .env                  # API keys (gitignored)
-    └── bin/ lib/ pyvenv.cfg  # venv internals
+├── .env                      # API keys (gitignored, at repo root)
+├── .gitattributes            # nbstripout filter (strips notebook outputs on commit)
+└── .venv/                    # Python 3.14 venv (gitignored; recreate with python3.14 -m venv .venv)
 ```
 
 ## Environment & running
 
-- **The venv is `assistant/`** (Python 3.14). It is now *only* a venv — all source moved
-  to the repo root. Interpreter: `assistant/bin/python`.
+- **The venv is `.venv/`** at the repo root (Python 3.14). Interpreter: `.venv/bin/python`.
+  Recreate from scratch with `python3.14 -m venv .venv && .venv/bin/python -m pip install -e .`.
 - **Install once (editable), then never `%pip install` in a notebook again:**
   ```bash
-  assistant/bin/python -m pip install -e .
+  .venv/bin/python -m pip install -e .
   ```
   This puts `clinical` and `graphs` on the path for any kernel using this venv, so
   `import clinical` works regardless of the launch directory. Deps come from
   `pyproject.toml`; exact versions are pinned in `requirements.txt`.
-- **`.env`** (at `assistant/.env`, gitignored, loaded automatically when `clinical` is
+- **`.env`** (at the repo root, gitignored, loaded automatically when `clinical` is
   imported) holds `OPENROUTER_API_KEY`, `EXA_API_KEY`, `LANGSMITH_API_KEY`,
   `LANGSMITH_TRACING`, `LANGSMITH_PROJECT`. Real secrets — keep out of commits/output.
-- **Notebooks:** `assistant/bin/python -m jupyter lab` (from repo root), pick that interpreter.
+- **Notebooks:** `.venv/bin/python -m jupyter lab` (from repo root), pick that interpreter.
 - **Studio:** `langgraph dev` from the repo root — loads graphs from `langgraph.json`.
+- **Notebook outputs** are stripped on commit by `nbstripout` (git filter, see `.gitattributes`)
+  so transcript text can't leak into this public repo via cell outputs. The filter
+  registration lives in `.git/config` (per-clone, not committed) — after a fresh clone run
+  `nbstripout --install` once (`pip install -e .` installs the tool itself).
 - **LLM** = custom `ChatOpenRouter` (`langchain_openrouter`), model `openai/gpt-5.6-luna`.
   LangSmith tracing is automatic via the env vars.
 
@@ -93,12 +97,9 @@ implements them to learn; help design/plan and review against the spec's accepta
 
 ## Known issues / gotchas
 
-- **The old notebooks in `assistant/` are superseded and now have broken paths.**
-  `assistant/ai_writer.ipynb` referenced `data/` and `helpers/`, which moved to the repo
-  root; it's reincarnated as `lessons/01_single_node.ipynb`. `assistant/agent.ipynb` (the
-  essay-writer experiment) is unrelated and still has a stray-`)` syntax error in cell 4.
-  Both can be deleted once you're happy with the lessons.
 - **Benign warning on import:** `UserWarning: Core Pydantic V1 functionality isn't
   compatible with Python 3.14`. Our schema is Pydantic **v2**; structured output works
   (verified). Ignore it.
-- `pyvenv.cfg` is git-tracked but the rest of the venv isn't — harmless, just unusual.
+- The two original experiment notebooks (`ai_writer.ipynb`, `agent.ipynb`) were removed in
+  the restructure — `ai_writer.ipynb` lives on as `lessons/01_single_node.ipynb`. Their last
+  committed versions are still recoverable from git history if ever needed.
