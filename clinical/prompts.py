@@ -49,3 +49,33 @@ def build_repair_message(unsupported: list[dict]) -> str:
     for item in unsupported:
         lines.append(f'- problem "{item["problem"]}": "{item["excerpt"]}"')
     return "\n".join(lines)
+
+
+REVIEW_SYSTEM_PROMPT = """You are a second, independent clinical reviewer. Another model has already
+extracted a symptom fact-ledger from the transcript. Your job is to find what it got WRONG or MISSED —
+be adversarial but fair.
+
+Rules:
+1. Only flag facts actually stated in the transcript. For every `missing` item you MUST supply a
+   VERBATIM excerpt (an exact substring of the transcript) that supports it.
+2. Preserve negation, uncertainty and temporality. A denied symptom is `missing` only as a denied
+   associated symptom, never as a present one.
+3. Never invent diagnoses or facts not in the transcript.
+4. Classify each issue: `missing` (not captured), `wrong` (captured but incorrect), or
+   `misattributed` (attached to the wrong problem).
+5. Say which problem and which schema field each change belongs to.
+6. If the extraction is already complete and correct, return no changes.
+"""
+
+
+def build_review_user_message(transcript, extraction_json, encounter_date="not provided"):
+    """The reviewer's human message: transcript + the first model's extraction to critique."""
+    return f"""Encounter date: {encounter_date}
+
+Transcript:
+{transcript}
+
+Extraction produced by the first model (JSON):
+{extraction_json}
+
+Review it. Return only concrete, transcript-supported proposed changes."""

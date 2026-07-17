@@ -1,5 +1,9 @@
+import re
 from html import escape
+
 from IPython.display import HTML, display
+
+from .schema import EVIDENCE_BACKED_FIELDS
 
 
 def _to_dict(value):
@@ -722,3 +726,227 @@ def show_symptom_evidence_matrix(
     """
 
     display(HTML(output_html))
+
+
+def _collect_excerpts(extraction):
+    """Every evidence excerpt cited anywhere in an extraction (accepts model or dict)."""
+    data = _to_dict(extraction)
+    excerpts = []
+
+    def _add(evidence_list):
+        for evidence in evidence_list or []:
+            excerpt = _to_dict(evidence).get("excerpt")
+            if excerpt:
+                excerpts.append(excerpt)
+
+    for problem in data.get("problems") or []:
+        problem = _to_dict(problem)
+        _add(problem.get("core_evidence"))
+        for field_name in EVIDENCE_BACKED_FIELDS:
+            for item in problem.get(field_name) or []:
+                _add(_to_dict(item).get("evidence"))
+        for associated in problem.get("associated_symptoms") or []:
+            _add(_to_dict(associated).get("evidence"))
+    return excerpts
+
+
+def _coverage_html(transcript, extraction, max_width="1000px"):
+    """Build the coverage HTML (separated from display() so it is unit-testable)."""
+    transcript = transcript or ""
+    # Put each timestamped turn on its own line for readability.
+    display_text = re.sub(r"(\[\d{1,2}:\d{2}\])", r"\n\1", transcript).lstrip("\n")
+
+    excerpts = _collect_excerpts(extraction)
+    haystack = display_text.lower()
+    spans, missing = [], []
+    for excerpt in excerpts:
+        index = haystack.find(excerpt.lower())
+        if index == -1:
+            missing.append(excerpt)
+        else:
+            spans.append((index, index + len(excerpt)))
+
+    # Merge overlapping/adjacent highlight spans.
+    spans.sort()
+    merged = []
+    for start, end in spans:
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+
+    parts, cursor = [], 0
+    for start, end in merged:
+        parts.append(escape(display_text[cursor:start]))
+        parts.append('<mark class="tc-hit">' + escape(display_text[start:end]) + "</mark>")
+        cursor = end
+    parts.append(escape(display_text[cursor:]))
+    body = "".join(parts).replace("\n", "<br>")
+
+    total = len(excerpts)
+    located = total - len(missing)
+
+    missing_html = ""
+    if missing:
+        items = "".join("<li>“" + escape(m) + "”</li>" for m in missing)
+        missing_html = (
+            '<div class="tc-missing"><strong>' + str(len(missing))
+            + " excerpt(s) not found verbatim in the transcript:</strong><ul>"
+            + items + "</ul></div>"
+        )
+
+    style = """
+    <style>
+      .tc-wrap { max-width: MAXW; margin:12px 0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#202124; }
+      .tc-head { font-size:13px; color:#475569; margin-bottom:8px; }
+      .tc-body { padding:14px; border:1px solid #dfe3e8; border-radius:10px; background:#fff; line-height:1.7; font-size:14px; }
+      .tc-hit { background:#fde68a; padding:1px 2px; border-radius:3px; }
+      .tc-missing { margin-top:10px; padding:10px 12px; border-left:3px solid #f59e0b; background:#fffbeb; font-size:13px; color:#92400e; border-radius:6px; }
+      .tc-missing ul { margin:6px 0 0; padding-left:18px; }
+    </style>
+    """.replace("MAXW", escape(str(max_width)))
+
+    head = (
+        '<div class="tc-head"><strong>Coverage:</strong> ' + str(located) + "/" + str(total)
+        + " cited excerpts located and highlighted. Un-highlighted text was not cited — "
+        "scan it for missed symptoms.</div>"
+    )
+
+    return (
+        style + '<div class="tc-wrap">' + head
+        + '<div class="tc-body">' + body + "</div>" + missing_html + "</div>"
+    )
+
+
+def show_transcript_coverage(transcript, extraction, max_width="1000px"):
+    """Render the transcript with every cited evidence excerpt highlighted.
+
+    See which parts of the conversation the extractor picked up; the *un*-highlighted
+    spans are what it did not cite, so read those to spot missed symptoms. Excerpts are
+    matched case-insensitively as substrings; any that can't be located are listed below
+    (usually a sign the citation isn't verbatim).
+    """
+    display(HTML(_coverage_html(transcript, extraction, max_width=max_width)))
+
+
+def _proposed_missing_excerpts(critique):
+    """Verbatim excerpts the reviewer proposes as MISSING (accepts model or dict)."""
+    data = _to_dict(critique)
+    out = []
+    for change in data.get("changes") or []:
+        change = _to_dict(change)
+        if change.get("kind") == "missing" and change.get("excerpt"):
+            out.append(change["excerpt"])
+    return out
+
+
+def _review_diff_html(transcript, extraction, critique, max_width="1000px"):
+    """Transcript with A's cited excerpts (green) and B's proposed-missing excerpts (orange)."""
+    display_text = re.sub(r"(\[\d{1,2}:\d{2}\])", r"\n\1", transcript or "").lstrip("\n")
+    n = len(display_text)
+    marks = [None] * n
+    low = display_text.lower()
+
+    def apply(excerpts, cls, override):
+        unlocated = []
+        for excerpt in excerpts:
+            if not excerpt:
+                continue
+            index = low.find(excerpt.lower())
+            if index == -1:
+                unlocated.append(excerpt)
+                continue
+            for i in range(index, index + len(excerpt)):
+                if override or marks[i] is None:
+                    marks[i] = cls
+        return unlocated
+
+    apply(_collect_excerpts(extraction), "a", True)          # green wins
+    b_unlocated = apply(_proposed_missing_excerpts(critique), "b", False)  # orange on unmarked
+
+    parts, i = [], 0
+    while i < n:
+        cls = marks[i]
+        j = i
+        while j < n and marks[j] == cls:
+            j += 1
+        segment = escape(display_text[i:j])
+        parts.append('<mark class="rv-' + cls + '">' + segment + "</mark>" if cls else segment)
+        i = j
+    body = "".join(parts).replace("\n", "<br>")
+
+    changes = [_to_dict(c) for c in (_to_dict(critique).get("changes") or [])]
+    if changes:
+        rows = []
+        for change in changes:
+            kind = str(change.get("kind", "?"))
+            excerpt = change.get("excerpt")
+            field = change.get("field")
+            rows.append(
+                '<li class="rv-change rv-' + escape(kind) + '">'
+                + '<span class="rv-kind">' + escape(kind) + "</span> "
+                + "<strong>" + escape(str(change.get("problem", "—"))) + "</strong>"
+                + (" · " + escape(str(field)) if field else "")
+                + "<div>" + escape(str(change.get("text", ""))) + "</div>"
+                + '<div class="rv-reason">' + escape(str(change.get("reason", ""))) + "</div>"
+                + ('<div class="rv-ex">“' + escape(excerpt) + "”</div>" if excerpt else "")
+                + "</li>"
+            )
+        proposals = '<ul class="rv-list">' + "".join(rows) + "</ul>"
+    else:
+        proposals = '<div class="rv-none">Reviewer proposed no changes.</div>'
+
+    unlocated_note = ""
+    if b_unlocated:
+        items = "".join("<li>“" + escape(u) + "”</li>" for u in b_unlocated)
+        unlocated_note = (
+            '<div class="rv-warn"><strong>' + str(len(b_unlocated))
+            + " reviewer excerpt(s) not found verbatim (can't highlight):</strong><ul>"
+            + items + "</ul></div>"
+        )
+
+    style = """
+    <style>
+      .rv-wrap { max-width: MAXW; margin:12px 0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#202124; }
+      .rv-legend { font-size:13px; color:#475569; margin-bottom:8px; }
+      .rv-body { padding:14px; border:1px solid #dfe3e8; border-radius:10px; background:#fff; line-height:1.7; font-size:14px; }
+      .rv-a { background:#bbf7d0; border-radius:3px; padding:1px 2px; }
+      .rv-b { background:#fed7aa; border-radius:3px; padding:1px 2px; }
+      .rv-props-title { margin:14px 0 6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#475569; }
+      .rv-list { list-style:none; margin:0; padding:0; }
+      .rv-change { padding:10px 12px; margin-bottom:8px; border:1px solid #e5e7eb; border-left:3px solid #94a3b8; border-radius:6px; font-size:13px; }
+      .rv-missing { border-left-color:#f59e0b; }
+      .rv-wrong { border-left-color:#ef4444; }
+      .rv-misattributed { border-left-color:#8b5cf6; }
+      .rv-kind { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 6px; border-radius:999px; background:#e2e8f0; color:#475569; }
+      .rv-reason { color:#64748b; font-style:italic; margin-top:2px; }
+      .rv-ex { color:#334155; background:#f8fafc; border-left:2px solid #cbd5e1; padding:4px 8px; margin-top:4px; border-radius:4px; font-size:12px; }
+      .rv-none { color:#16a34a; font-size:13px; }
+      .rv-warn { margin-top:10px; padding:8px 10px; border-left:3px solid #f59e0b; background:#fffbeb; color:#92400e; font-size:12px; border-radius:6px; }
+      .rv-warn ul { margin:4px 0 0; padding-left:18px; }
+    </style>
+    """.replace("MAXW", escape(str(max_width)))
+
+    legend = (
+        '<div class="rv-legend"><strong>Extractor vs reviewer.</strong> '
+        '<mark class="rv-a">green</mark> = captured by extractor (A) · '
+        '<mark class="rv-b">orange</mark> = reviewer (B) says this was missed. '
+        "Read the orange spans and the proposals below.</div>"
+    )
+
+    return (
+        style + '<div class="rv-wrap">' + legend
+        + '<div class="rv-body">' + body + "</div>" + unlocated_note
+        + '<div class="rv-props-title">Reviewer proposals (' + str(len(changes)) + ")</div>"
+        + proposals + "</div>"
+    )
+
+
+def show_review_diff(transcript, extraction, critique, max_width="1000px"):
+    """Render the extractor-vs-reviewer diff.
+
+    The transcript is highlighted green where the extractor (A) cited evidence and orange
+    where the reviewer (B) says a symptom was missed, followed by B's list of proposed
+    changes. Un-highlighted text is what neither model flagged.
+    """
+    display(HTML(_review_diff_html(transcript, extraction, critique, max_width=max_width)))

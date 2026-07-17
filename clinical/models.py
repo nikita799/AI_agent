@@ -8,7 +8,7 @@ for tests (see tests that run the graph without hitting OpenRouter).
 
 from langchain_openrouter import ChatOpenRouter
 
-from .schema import SymptomExtraction
+from .schema import Critique, SymptomExtraction
 
 # The model used by the primary extraction experiment. Swap here to compare
 # models across every lesson at once.
@@ -23,3 +23,13 @@ def get_chat_model(model: str = DEFAULT_MODEL, **kwargs) -> ChatOpenRouter:
 def get_extraction_model(model: str = DEFAULT_MODEL, **kwargs):
     """A chat model that returns a validated ``SymptomExtraction``."""
     return get_chat_model(model, **kwargs).with_structured_output(SymptomExtraction)
+
+
+# The reviewer (Model B). A DIFFERENT family from DEFAULT_MODEL so it's a genuine second
+# opinion rather than the same model agreeing with itself. Swap here to try other reviewers.
+REVIEWER_MODEL = "anthropic/claude-sonnet-5"
+
+
+def get_reviewer_model(model: str = REVIEWER_MODEL, **kwargs):
+    """A chat model that returns a validated ``Critique`` of an existing extraction."""
+    return get_chat_model(model, **kwargs).with_structured_output(Critique)

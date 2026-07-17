@@ -1,9 +1,12 @@
 # ai_assistant
 
-A **LangGraph learning curriculum**. The goal of the repo is to learn LangGraph's
-implementations; **clinical symptom extraction is the running motivational example**,
-not the end product. Each lesson isolates one LangGraph mechanism and builds it on a
-shared, LangGraph-free core (`clinical/`).
+A hands-on project with **two coequal goals**: learn LangGraph, and build a genuinely good
+**clinical fact-extraction** capability. Right now the focus is pulling **symptom** facts
+from Estonian consultation transcripts *well*; later it extends to other clinical-note facts
+(medications, diagnoses, vitals, plan, …), so the schema is kept extensible. Work is
+**notebook-centric** — you run and examine everything in `.ipynb`. LangGraph mechanics are
+learned via `lessons/` (each isolating one mechanism on the shared, LangGraph-free core
+`clinical/`) and pulled into the extraction pipeline as the task needs them.
 
 ## Layout
 
@@ -15,9 +18,13 @@ ai_assistant/
 │   ├── prompts.py            # EXTRACTION_SYSTEM_PROMPT + repair-message builder
 │   ├── data.py               # load_transcripts() / get_transcript() / sample_transcript()
 │   ├── validation.py         # find_unsupported_excerpts() — pure, deterministic, testable
-│   ├── render.py             # show_symptom_evidence_matrix() (moved from old helpers/)
+│   ├── render.py             # show_symptom_evidence_matrix() + show_transcript_coverage()
 │   └── config.py             # repo-root-relative paths + .env loading
+├── workbench/                # ← MAIN task notebooks: run extraction on real transcripts & examine quality
+│   ├── symptoms.ipynb        # run → evidence matrix + transcript-coverage highlight → critique
+│   └── review.ipynb          # dual-model: A extracts, B reviews → 🟩/🟧 diff (→ gold dataset, WIP)
 ├── lessons/                  # one LangGraph concept per notebook (see lessons/README.md)
+│   ├── 00_run_and_inspect.ipynb  # ✅ run a graph & examine its intermediaries
 │   ├── 01_single_node.ipynb  # ✅ baseline: START → extract → END
 │   └── 04_validation_loop.ipynb  # ✅ first real graph: a cycle
 ├── graphs/                   # importable graph modules for LangGraph Studio
@@ -68,6 +75,18 @@ Scaffolded so far: **01** (single node) and **04** (validation loop).
 and a conditional edge loops back to `extract` — feeding the bad excerpts back to the
 model — until clean or `MAX_ATTEMPTS`. `build_graph(model=...)` takes the model as an
 argument so tests/notebooks can inject a stub and exercise the loop with **no LLM call**.
+
+## Workbench (`workbench/symptoms.ipynb`) — the main task line
+
+The task-focused notebook (not a lesson): run the citation-validated extraction on a real
+transcript and examine quality inline. Two lenses:
+- `show_symptom_evidence_matrix(extraction)` — the structured facts + their evidence.
+- `show_transcript_coverage(transcript, extraction)` — the transcript with cited excerpts
+  highlighted, so **un-highlighted text = what the extractor missed** (and non-verbatim
+  citations are flagged). A final cell lists failure modes to check for.
+
+Symptoms now; the schema and workbench are meant to extend to other clinical-note facts
+(medications, diagnoses, vitals, plan, …) later.
 
 ## Spec-first workflow (`specs/`)
 

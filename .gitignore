@@ -4,6 +4,9 @@
 # Local data — medical consultation transcripts are kept out of this public repo
 data/*.csv
 
+# Curated gold dataset (contains transcript excerpts) — kept out of this public repo
+gold/
+
 # Virtualenv
 .venv/
 

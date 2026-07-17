@@ -33,6 +33,7 @@ the code yourself.
 
 | # | Spec | Status |
 |---|------|--------|
+| 00 | [run & inspect a graph from the notebook](00_run_and_inspect.md) *(foundational)* | implemented |
 | 01 | [single node](01_single_node.md) | implemented |
 | 02 | [state & reducers](02_state_and_reducers.md) | planned |
 | 03 | [conditional routing](03_conditional_routing.md) | planned |

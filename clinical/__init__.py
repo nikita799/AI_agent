@@ -19,18 +19,32 @@ _warnings.filterwarnings(
 
 from .config import DATA_DIR, REPO_ROOT, TRANSCRIPTS_CSV, load_env
 from .data import get_transcript, load_transcripts, sample_transcript
-from .models import DEFAULT_MODEL, get_chat_model, get_extraction_model
+from .models import (
+    DEFAULT_MODEL,
+    REVIEWER_MODEL,
+    get_chat_model,
+    get_extraction_model,
+    get_reviewer_model,
+)
 from .prompts import (
     EXTRACTION_SYSTEM_PROMPT,
+    REVIEW_SYSTEM_PROMPT,
     build_extraction_user_message,
     build_repair_message,
+    build_review_user_message,
 )
-from .render import show_symptom_evidence_matrix
+from .render import (
+    show_review_diff,
+    show_symptom_evidence_matrix,
+    show_transcript_coverage,
+)
 from .schema import (
     EVIDENCE_BACKED_FIELDS,
     AssociatedSymptom,
+    Critique,
     Evidence,
     EvidenceBackedText,
+    ProposedChange,
     SymptomExtraction,
     SymptomProblem,
 )
@@ -54,6 +68,8 @@ __all__ = [
     "build_extraction_user_message",
     "build_repair_message",
     "show_symptom_evidence_matrix",
+    "show_transcript_coverage",
+    "show_review_diff",
     "Evidence",
     "EvidenceBackedText",
     "AssociatedSymptom",
@@ -63,4 +79,10 @@ __all__ = [
     "find_unsupported_excerpts",
     "iter_evidence",
     "normalize",
+    "Critique",
+    "ProposedChange",
+    "REVIEWER_MODEL",
+    "get_reviewer_model",
+    "REVIEW_SYSTEM_PROMPT",
+    "build_review_user_message",
 ]

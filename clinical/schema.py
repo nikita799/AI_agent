@@ -130,3 +130,52 @@ EVIDENCE_BACKED_FIELDS: tuple[str, ...] = (
     "relieving_factors",
     "negative_characteristics",
 )
+
+
+class ProposedChange(BaseModel):
+    """One concrete change the reviewer (Model B) proposes to the extraction."""
+
+    kind: Literal["missing", "wrong", "misattributed"] = Field(
+        description=(
+            "Whether the first model MISSED this fact, stated it WRONG, or attached it "
+            "to the wrong problem (MISATTRIBUTED)."
+        )
+    )
+    problem: str = Field(
+        description=(
+            "The problem this relates to — an existing problem's name, or a new problem "
+            "name if the whole problem was missed."
+        )
+    )
+    field: str | None = Field(
+        default=None,
+        description=(
+            "Which schema field it belongs in, e.g. 'severity', 'onset', "
+            "'associated_symptoms', 'core_evidence', 'laterality'."
+        ),
+    )
+    text: str = Field(
+        description="The fact/characteristic in question, stated atomically."
+    )
+    excerpt: str | None = Field(
+        default=None,
+        description=(
+            "Verbatim transcript excerpt supporting this. REQUIRED when kind='missing'."
+        ),
+    )
+    reason: str = Field(description="Why the reviewer flags this change.")
+
+
+class Critique(BaseModel):
+    """Model B's structured review of Model A's extraction."""
+
+    changes: list[ProposedChange] = Field(
+        default_factory=list,
+        description=(
+            "Concrete proposed additions/corrections. Empty if A is complete and correct."
+        ),
+    )
+    overall: str = Field(
+        default="",
+        description="One-line overall assessment of the first model's extraction.",
+    )
