@@ -31,9 +31,12 @@ jump to the one whose mechanism you want next.
 # one-time: install the project + deps into the venv (editable)
 .venv/bin/python -m pip install -e .
 
-# then open any lesson with that interpreter as the kernel, launched from the repo root:
-.venv/bin/python -m jupyter lab
+# then open any lesson, launched from the repo root:
+.venv/bin/jupyter lab
 ```
+
+Or open a lesson in VS Code / Cursor and pick the `.venv` interpreter as the kernel
+(`ipykernel` is already installed — no JupyterLab needed for that route).
 
 Because `clinical` is installed editably, `import clinical` works in any kernel
 using this venv — no `sys.path` hacks, no per-notebook `%pip install`.
@@ -43,3 +46,11 @@ using this venv — no `sys.path` hacks, no per-notebook `%pip install`.
 Graph-heavy lessons also ship as importable modules in `graphs/` behind
 `langgraph.json`. Run `langgraph dev` from the repo root to step through them
 visually. Currently wired: `validation_loop` (lesson 04).
+
+Studio takes the graph input by hand, so to feed it a transcript grab one with the
+`random-transcript` command and paste it into the `transcript` field:
+
+```bash
+random-transcript | pbcopy      # random transcript → clipboard (prints its id)
+random-transcript transcript_42 | pbcopy   # a specific one
+```

@@ -45,7 +45,8 @@ ai_assistant/
 - **`.env`** (at the repo root, gitignored, loaded automatically when `clinical` is
   imported) holds `OPENROUTER_API_KEY`, `EXA_API_KEY`, `LANGSMITH_API_KEY`,
   `LANGSMITH_TRACING`, `LANGSMITH_PROJECT`. Real secrets — keep out of commits/output.
-- **Notebooks:** `.venv/bin/python -m jupyter lab` (from repo root), pick that interpreter.
+- **Notebooks:** `.venv/bin/jupyter lab` (from repo root). Or open the `.ipynb` in
+  VS Code / Cursor and select the `.venv` interpreter (`ipykernel` is installed).
 - **Studio:** `langgraph dev` from the repo root — loads graphs from `langgraph.json`.
 - **Notebook outputs** are stripped on commit by `nbstripout` (git filter, see `.gitattributes`)
   so transcript text can't leak into this public repo via cell outputs. The filter

@@ -8,6 +8,15 @@ Import what you need and build your graph on top:
 Importing the package loads API keys from ``.env`` automatically.
 """
 
+import warnings as _warnings
+
+# Silence the benign langchain/pydantic-v1 shim warning on Python 3.14 — our schema
+# is Pydantic v2 and structured output is unaffected. Targeted so real warnings show.
+_warnings.filterwarnings(
+    "ignore",
+    message=r"Core Pydantic V1 functionality isn't compatible with Python 3\.14.*",
+)
+
 from .config import DATA_DIR, REPO_ROOT, TRANSCRIPTS_CSV, load_env
 from .data import get_transcript, load_transcripts, sample_transcript
 from .models import DEFAULT_MODEL, get_chat_model, get_extraction_model

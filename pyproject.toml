@@ -13,11 +13,15 @@ dependencies = [
     "jinja2",
     "exa-py",
     # notebook + graph tooling
+    "jupyterlab",
     "ipykernel",
     "nbformat",
     "nbstripout",  # strips notebook outputs on commit (keeps transcript text out of git)
     "langgraph-cli[inmem]",  # provides `langgraph dev` for Studio
 ]
+
+[project.scripts]
+random-transcript = "clinical.cli:random_transcript"
 
 [build-system]
 requires = ["setuptools>=68"]
