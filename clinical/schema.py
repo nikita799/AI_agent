@@ -179,3 +179,19 @@ class Critique(BaseModel):
         default="",
         description="One-line overall assessment of the first model's extraction.",
     )
+
+
+class FlagVerdict(BaseModel):
+    """The adjudicator's ruling on a human's 'you missed X' flag."""
+
+    apply: bool = Field(
+        description="True if the transcript DOES support the flagged fact and it should be added."
+    )
+    change: ProposedChange | None = Field(
+        default=None,
+        description="The change to apply (with a verbatim excerpt) when apply=True; null otherwise.",
+    )
+    rebuttal: str = Field(
+        default="",
+        description="When apply=False, a brief explanation of why the transcript does not support it.",
+    )

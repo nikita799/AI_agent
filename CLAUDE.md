@@ -29,7 +29,8 @@ ai_assistant/
 │   ├── 01_single_node.ipynb  # ✅ baseline: START → extract → END
 │   └── 04_validation_loop.ipynb  # ✅ first real graph: a cycle
 ├── graphs/                   # importable graph modules for LangGraph Studio
-│   └── validation_loop.py    # build_graph(model=...) + module-level `graph`
+│   ├── validation_loop.py    # build_graph(model=...) + module-level `graph`
+│   └── review_pipeline.py    # HITL: extract subgraph → review → interrupt() → apply-or-rebut
 ├── data/transcripts.csv      # 105 Estonian consultation transcripts [id, transcript]
 ├── langgraph.json            # wires graphs/ into `langgraph dev` (Studio)
 ├── pyproject.toml            # installable project + deps (replaces per-notebook %pip install)

@@ -1,6 +1,6 @@
 # Feature — Dual-model review → human adjudication → gold dataset
 
-> **Status:** Phases 1–2 complete ✅ · Phase 3 next
+> **Status:** Phases 1–3 complete ✅ · Phase 4 next
 > **Notebook:** `workbench/review.ipynb`
 > **Builds on:** `workbench/symptoms.ipynb`, `graphs/validation_loop.py`,
 > `clinical.render.show_transcript_coverage`
@@ -53,9 +53,13 @@ extract (Model A, validated) → review (Model B → Critique)
       (`clinical.build_gold_record` / `save_gold` / `load_gold`).
 - [x] `gold/` gitignored; `gold_progress()` lists curated transcripts.
 
-### Phase 3 — Debate loop as a LangGraph graph (HITL)
-- [ ] `graphs/review_pipeline.py`: extractor validation-loop as a **subgraph**; `interrupt()` for the
-      human; the **apply-or-rebut** cycle; a checkpointer for pause/resume.
+### Phase 3 — Debate loop as a LangGraph graph (HITL)  ✅ core done
+- [x] `graphs/review_pipeline.py`: extractor validation-loop as a **subgraph**; `interrupt()` for the
+      human; **apply-or-rebut** adjudication of human flags; `MemorySaver` checkpointer for pause/resume.
+      `build_review_graph(extractor, reviewer, adjudicator, checkpointer)` injects models for stub tests.
+      Verified: interrupt → resume via `Command` → accepted proposal merged + human flag applied, 0 rebuttals.
+- [ ] Enhancement: loop back to a *second* interrupt so the human sees rebuttals and can override.
+- [ ] Notebook that drives it (or run in Studio via `langgraph dev` → `review_pipeline`).
 
 ### Phase 4 — Gold as an eval set
 - [ ] Re-run the extractor vs gold; report fact precision/recall + citation accuracy.
@@ -69,3 +73,6 @@ extract (Model A, validated) → review (Model B → Critique)
   negation/uncertainty/temporality; never invent diagnoses.
 - Verify all non-LLM machinery (schema, diff, highlight, merge) with **stubs**; the two real model
   calls are the only cells that cost money.
+- **Known (Phase 3):** with a checkpointer, langgraph warns `Deserializing unregistered type …
+  SymptomExtraction` (msgpack). Works on langgraph 1.2.9; if it ever becomes blocking, store dicts in
+  the checkpointed state or register the modules.

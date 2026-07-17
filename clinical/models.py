@@ -8,7 +8,7 @@ for tests (see tests that run the graph without hitting OpenRouter).
 
 from langchain_openrouter import ChatOpenRouter
 
-from .schema import Critique, SymptomExtraction
+from .schema import Critique, FlagVerdict, SymptomExtraction
 
 # The model used by the primary extraction experiment. Swap here to compare
 # models across every lesson at once.
@@ -33,3 +33,8 @@ REVIEWER_MODEL = "anthropic/claude-sonnet-5"
 def get_reviewer_model(model: str = REVIEWER_MODEL, **kwargs):
     """A chat model that returns a validated ``Critique`` of an existing extraction."""
     return get_chat_model(model, **kwargs).with_structured_output(Critique)
+
+
+def get_adjudicator_model(model: str = REVIEWER_MODEL, **kwargs):
+    """A chat model that rules on a human-flagged missing fact — apply it, or rebut it."""
+    return get_chat_model(model, **kwargs).with_structured_output(FlagVerdict)

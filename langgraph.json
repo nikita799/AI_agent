@@ -1,7 +1,8 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "validation_loop": "./graphs/validation_loop.py:graph"
+    "validation_loop": "./graphs/validation_loop.py:graph",
+    "review_pipeline": "./graphs/review_pipeline.py:graph"
   },
   "env": ".env"
 }

@@ -79,3 +79,28 @@ Extraction produced by the first model (JSON):
 {extraction_json}
 
 Review it. Return only concrete, transcript-supported proposed changes."""
+
+
+ADJUDICATE_SYSTEM_PROMPT = """You are adjudicating a human reviewer's claim that the extraction MISSED
+a symptom fact. Decide, strictly from the transcript, whether the claim is supported.
+
+- If the transcript DOES state it: set apply=true and return a `change` with kind='missing', the
+  correct problem and field, and a VERBATIM excerpt.
+- If it does NOT: set apply=false and give a brief `rebuttal` (why it is not stated — a misreading,
+  or only proposed/hypothetical, or actually denied).
+Never invent facts. Preserve negation, uncertainty and temporality.
+"""
+
+
+def build_adjudicate_user_message(transcript, extraction_json, flag):
+    """The adjudicator's human message: transcript + current extraction + the human's flag."""
+    return f"""Transcript:
+{transcript}
+
+Current extraction (JSON):
+{extraction_json}
+
+A human reviewer claims this symptom fact was MISSED:
+"{flag}"
+
+Rule on it: is it supported by the transcript?"""
