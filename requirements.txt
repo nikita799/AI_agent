@@ -57,6 +57,7 @@ langsmith==0.10.5
 MarkupSafe==3.0.3
 matplotlib-inline==0.2.2
 nbformat==5.10.4
+nbstripout==0.9.1
 nest-asyncio2==1.7.2
 numpy==2.5.1
 openai==2.46.0
