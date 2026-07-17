@@ -4,6 +4,11 @@ A curriculum for learning LangGraph, using the clinical symptom-extraction task
 (`clinical/`) as the running example. Each lesson isolates **one** LangGraph
 mechanism and builds on the same schema, model, and data.
 
+**Spec-first:** each lesson has a spec in [`../specs/`](../specs/README.md) that
+defines its goal and its acceptance criteria *before* the notebook exists. Write
+(or refine) the spec, then implement the notebook until every acceptance box is
+checkable. You write the code — the spec is the contract, not an auto-implement input.
+
 | # | Notebook | LangGraph mechanism | Extraction exercise |
 |---|----------|---------------------|---------------------|
 | 01 | `01_single_node.ipynb` ✅ | baseline: `StateGraph`, nodes, edges | `START → extract → END` |

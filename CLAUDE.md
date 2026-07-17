@@ -64,6 +64,17 @@ and a conditional edge loops back to `extract` — feeding the bad excerpts back
 model — until clean or `MAX_ATTEMPTS`. `build_graph(model=...)` takes the model as an
 argument so tests/notebooks can inject a stub and exercise the loop with **no LLM call**.
 
+## Spec-first workflow (`specs/`)
+
+This repo uses a lightweight, DIY spec-driven flow (no spec-kit/framework). Every
+lesson has a spec in `specs/NN_*.md` (copy `specs/TEMPLATE.md`) that states its one
+learning goal and — most importantly — **observable acceptance criteria** before the
+notebook is written. `specs/README.md` holds the workflow and the curriculum
+"constitution" (one mechanism per lesson; reuse `clinical/`; acceptance must be
+observable and ideally stub-verifiable without an LLM). Keep `Status:` in each spec
+in sync with reality. **Claude should not auto-`/implement` lessons** — the user
+implements them to learn; help design/plan and review against the spec's acceptance.
+
 ## Schema & domain (the `clinical` core)
 
 - `SymptomExtraction` → `problems: list[SymptomProblem]`; each problem has evidence-backed
