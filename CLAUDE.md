@@ -18,7 +18,8 @@ ai_assistant/
 │   ├── prompts.py            # EXTRACTION_SYSTEM_PROMPT + repair-message builder
 │   ├── data.py               # load_transcripts() / get_transcript() / sample_transcript()
 │   ├── validation.py         # find_unsupported_excerpts() — pure, deterministic, testable
-│   ├── render.py             # show_symptom_evidence_matrix() + show_transcript_coverage()
+│   ├── render.py             # show_symptom_evidence_matrix / show_transcript_coverage / show_review_diff
+│   ├── gold.py               # apply_accepted() merge + GoldRecord save/load (review Phase 2)
 │   └── config.py             # repo-root-relative paths + .env loading
 ├── workbench/                # ← MAIN task notebooks: run extraction on real transcripts & examine quality
 │   ├── symptoms.ipynb        # run → evidence matrix + transcript-coverage highlight → critique

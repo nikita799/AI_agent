@@ -33,6 +33,14 @@ from .prompts import (
     build_repair_message,
     build_review_user_message,
 )
+from .gold import (
+    GoldRecord,
+    apply_accepted,
+    build_gold_record,
+    gold_progress,
+    load_gold,
+    save_gold,
+)
 from .render import (
     show_review_diff,
     show_symptom_evidence_matrix,
@@ -85,4 +93,10 @@ __all__ = [
     "get_reviewer_model",
     "REVIEW_SYSTEM_PROMPT",
     "build_review_user_message",
+    "GoldRecord",
+    "apply_accepted",
+    "build_gold_record",
+    "save_gold",
+    "load_gold",
+    "gold_progress",
 ]

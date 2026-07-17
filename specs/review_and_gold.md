@@ -1,6 +1,6 @@
 # Feature — Dual-model review → human adjudication → gold dataset
 
-> **Status:** Phase 1 complete ✅ · Phase 2 next
+> **Status:** Phases 1–2 complete ✅ · Phase 3 next
 > **Notebook:** `workbench/review.ipynb`
 > **Builds on:** `workbench/symptoms.ipynb`, `graphs/validation_loop.py`,
 > `clinical.render.show_transcript_coverage`
@@ -46,10 +46,12 @@ extract (Model A, validated) → review (Model B → Critique)
       B's proposals — verified with a **stub** critique + a real transcript (no LLM call).
 - [x] `workbench/review.ipynb`: extract → review → diff view on a chosen transcript.
 
-### Phase 2 — Human adjudication + save gold
-- [ ] Accept/reject each proposal; accepted `missing` facts merged into the extraction.
-- [ ] `gold/<transcript_id>.json`: final extraction + models used + critique + human decisions + timestamp.
-- [ ] `gold/` gitignored; a dataset-progress view (how many transcripts curated).
+### Phase 2 — Human adjudication + save gold  ✅ done
+- [x] Accept/reject each proposal; accepted `missing` facts merged into the extraction
+      (`clinical.apply_accepted`, deterministic, best-effort per field; original preserved).
+- [x] `gold/<transcript_id>.json`: final extraction + models used + critique + human decisions + timestamp
+      (`clinical.build_gold_record` / `save_gold` / `load_gold`).
+- [x] `gold/` gitignored; `gold_progress()` lists curated transcripts.
 
 ### Phase 3 — Debate loop as a LangGraph graph (HITL)
 - [ ] `graphs/review_pipeline.py`: extractor validation-loop as a **subgraph**; `interrupt()` for the
