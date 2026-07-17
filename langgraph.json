@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "validation_loop": "./graphs/validation_loop.py:graph"
+  },
+  "env": "assistant/.env"
+}

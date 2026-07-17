@@ -1,0 +1,26 @@
+[project]
+name = "clinical-langgraph-lessons"
+version = "0.1.0"
+description = "A LangGraph learning curriculum using clinical symptom extraction as the running example."
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph",
+    "langchain-core",
+    "langchain-openrouter",
+    "pydantic>=2",
+    "python-dotenv",
+    "pandas",
+    "jinja2",
+    "exa-py",
+    # notebook + graph tooling
+    "ipykernel",
+    "nbformat",
+    "langgraph-cli[inmem]",  # provides `langgraph dev` for Studio
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["clinical", "graphs"]

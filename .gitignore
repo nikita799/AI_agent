@@ -1,0 +1,24 @@
+# Secrets
+.env
+assistant/.env
+
+# Local data — medical consultation transcripts are kept out of this public repo
+data/*.csv
+
+# The venv lives inside assistant/ (its own .gitignore covers the internals)
+assistant/bin/
+assistant/lib/
+assistant/include/
+assistant/share/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/
+
+# LangGraph CLI / Studio
+.langgraph_api/
+
+# OS
+.DS_Store
